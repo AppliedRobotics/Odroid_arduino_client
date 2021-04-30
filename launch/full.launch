@@ -1,6 +1,6 @@
 <launch>
-    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch"/>
-    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch"/>
+    <node name="serial_connection" pkg="Odroid_arduino_client" type="serial_conn.py" output="screen"/>
+    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_lidar.launch"/>
     <include file="$(find rns_bridge)/launch/bridge.launch"/>
     <include file="$(find rnsslam)/launch/slam.launch">
 	    <arg name="scan_topic" value="/scan" />

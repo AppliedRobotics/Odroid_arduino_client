@@ -12,7 +12,7 @@ from std_msgs.msg import String
 from math import sin, cos
 class NavControl():
     def __init__(self):
-        rospy.init_node('nav_controller')   
+        #rospy.init_node('nav_controller')   
         print('start control') 
         self.sub_cmd = rospy.Subscriber('/move_state', String, self.cbfeedback, queue_size=1)
         self.goal_pub = rospy.Publisher('/move_action/goal', MoveToActionGoal, queue_size=1)
