@@ -61,8 +61,9 @@ class SerialControl():
 	def analize_target(self, point):
 		#print(self.x_target, self.y_target, self.theta_target, self.nav_state)
 		#print(point[0], point[1], point[2])
-		if self.nav_state != 'moving':
+		if(point[0] != self.x_target or point[1] != self.y_target or point[2] != theta.self_target) and self.new_point_flag = False:
 			self.new_point_flag = True
+		if self.nav_state != 'moving' and self.new_point_flag == True:
 			self.x_target = point[0]
 			self.y_target = point[1]
 			self.theta_target = point[2]
@@ -71,8 +72,9 @@ class SerialControl():
 			self.nav_state = self.nav.get_feedback()
 			print(self.nav_state)
 		else:
-			self.new_point_flag = False
 			self.nav_state = self.nav.get_feedback()
+			if self.nav_state == 'finished':
+				self.new_point_flag = False
 			string = "s:" + self.nav_state
 			self.ser.write(string)
 			string = "rp:"+str(self.x_real)+','+str(self.y_real)+','+str(self.theta)
