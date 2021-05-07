@@ -42,5 +42,5 @@ class NavControl():
         # print(wait)
 if __name__ == '__main__':
     con = NavControl()
-    con.sendgoal()
+    con.sendgoal(0.4, 0.4, 0.3)
     rospy.spin()
