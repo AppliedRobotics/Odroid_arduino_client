@@ -6,13 +6,14 @@ from sensor_msgs.msg import JointState, Imu
 from std_msgs.msg import Header
 from time import sleep, time
 from geometry_msgs.msg import Twist, Point, Quaternion, Pose, Vector3
-from std_msgs.msg import UInt32MultiArray, Float32
+from std_msgs.msg import UInt32MultiArray, Float32, Bool, String
 from nav_msgs.msg import Odometry
 import tf
 from nav_msgs.msg import OccupancyGrid
 from math import cos, sin, pi 
 from nav_controller import NavControl
 from rnsslam.msg import ScanPose
+import serial.tools.list_ports
 class SerialControl():
 	def __init__(self):
 		connected = False
@@ -31,6 +32,8 @@ class SerialControl():
 		self.sub_map = rospy.Subscriber("map", OccupancyGrid, self.map_cb)
 		self.pose_cb = rospy.Subscriber("scanpose", ScanPose, self.scanpose_cb)
 		self.odom_pub = rospy.Publisher('odom', Odometry, queue_size=1)
+		self.serial_status_pub = rospy.Publisher('serial_status', Bool, queue_size=1)
+		self.nav_status_pub = rospy.Publisher('nav_status', String, queue_size=1)
 		self.broadcaster = tf.TransformBroadcaster()
 		self.previous_cmd_time = time()
 		self.previous_odom_time = time()
@@ -59,33 +62,53 @@ class SerialControl():
 	def scanpose_cb(self,data):
 		self.x_real = data.pose.pose.position.x
 		self.y_real = data.pose.pose.position.y
-		self.theta_real = tf.transformations.euler_from_quaternion((data.pose.pose.orientation.x,
+		_ ,_ ,self.theta_real = tf.transformations.euler_from_quaternion((data.pose.pose.orientation.x,
 		data.pose.pose.orientation.y,
 		data.pose.pose.orientation.z,
 		data.pose.pose.orientation.w))
 	def read(self):
-		b = str(self.ser.readline())
-		#print(b)
-		b = b.split(';')
-		for i in range(0, len(b)):
-			msg = b[i].split(',')
-			if msg[0] == 'tp':
-				#a = 1
-				self.analize_target([float(msg[1]), float(msg[2]), float(msg[3])])
-			if msg[0] == 'cv':
-				self.calc_odom([float(msg[1]), float(msg[2]), float(msg[3])])
-		if float(time() - self.previous_cmd_time) > 2.0:
-			self.vx = 0
-			self.vy = 0 
-			self.wz = 0
-		#print(self.nav_state)
-		string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))+";s:"+self.nav_state+";rp:"+str(self.x_real)+','+str(self.y_real)+','+str(self.theta)
-		#string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))
-		#print(string_)
-		self.ser.write(string_)
+		try:
+			b = str(self.ser.readline())
+			#print(b)
+			b = b.split(';')
+			for i in range(0, len(b)):
+				msg = b[i].split(',')
+				if msg[0] == 'tp':
+					#a = 1
+					self.analize_target([float(msg[1]), float(msg[2]), float(msg[3])])
+				if msg[0] == 'cv':
+					self.calc_odom([float(msg[1]), float(msg[2]), float(msg[3])])
+					msg = Bool()
+					msg.data = True
+					self.serial_status_pub.publish(msg)
+			if float(time() - self.previous_cmd_time) > 2.0:
+				self.vx = 0
+				self.vy = 0 
+				self.wz = 0
+			#print(self.nav_state)
+			string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))+";s:"+self.nav_state+";rp:"+str(self.x_real)+','+str(self.y_real)+','+str(self.theta)
+			#string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))
+			#print(string_)
+			print("send")
+			self.ser.write(string_)
+		except Exception as e:
+			print(e)
+			myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+			for port in myports:
+				print(port[0])
+				if port[0] == '/dev/ttyACM0':
+					self.ser.close()
+					self.ser = Serial('/dev/ttyACM0', 9600 ,timeout = 0.05)
+				elif port[0] == '/dev/ttyACM1':
+					self.ser.close()
+					self.ser = Serial('/dev/ttyACM1', 9600 ,timeout = 0.05)
+			
 	def analize_target(self, point):
 		#print(self.x_target, self.y_target, self.theta_target, self.nav_state)
 		#print(point[0], point[1], point[2])
+		msg = String()
+		msg.data = "state:" + self.nav_state + ";x:"+str(self.x_target)+";y:"+str(self.y_target)+";theta:"+str(self.theta_target)+";x_real:"+str(self.x_real)+";y_real:"+str(self.y_real)+";theta_real:"+str(self.theta_real)
+		self.nav_status_pub.publish(msg)
 		if (point[0] != self.x_target or point[1] != self.y_target or point[2] != self.theta_target) and self.new_point_flag == False:
 			self.new_point_flag = True
 		if self.start_msg == True:
@@ -93,7 +116,7 @@ class SerialControl():
 				self.x_target = point[0]
 				self.y_target = point[1]
 				self.theta_target = point[2]
-				print(self.x_target, self.y_target, self.theta_target)
+				#print(self.x_target, self.y_target, self.theta_target)
 				self.nav.sendgoal(self.x_target, self.y_target, self.theta_target)
 				#rospy.sleep(0.1)
 				self.nav_state = self.nav.get_feedback()
