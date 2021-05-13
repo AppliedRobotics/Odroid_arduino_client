@@ -160,6 +160,7 @@ include_directories(
  install(PROGRAMS
    src/serial_conn.py
    src/monitor.py
+   src/nav_controller.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
