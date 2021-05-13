@@ -1,4 +1,6 @@
 <launch>
     <node name="serial_connection" pkg="Odroid_arduino_client" type="serial_conn.py" output="screen"/>
-    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_lidar.launch"/>
+    <node pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name="hlds_laser_publisher" output="screen">
+     <param name="port" value="/dev/ttyUSB0"/>
+     <param name="frame_id" value="base_scan"/>
 </launch>
