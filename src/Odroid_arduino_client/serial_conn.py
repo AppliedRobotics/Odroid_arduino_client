@@ -16,11 +16,12 @@ import serial.tools.list_ports
 import os
 import sys
 
-pkg_path = os.environ['ROS_NAV_CONTROLLER_PATH']
+#pkg_path = os.environ['ROS_NAV_CONTROLLER_PATH']
 
-sys.path.insert(0, pkg_path)
+#sys.path.insert(0, pkg_path)
 
-from nav_controller import NavControl
+#from nav_controller import NavControl
+from Odroid_arduino_client.nav_controller import NavControl
 class SerialControl():
 	def __init__(self):
 		connected = False
