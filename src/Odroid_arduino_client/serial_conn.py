@@ -97,7 +97,7 @@ class SerialControl():
 			string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))+";s:"+self.nav_state+";rp:"+str(self.x_real)+','+str(self.y_real)+','+str(self.theta)
 			#string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))
 			#print(string_)
-			print("send")
+			#print("send")
 			self.ser.write(string_)
 		except Exception as e:
 			print(e)
