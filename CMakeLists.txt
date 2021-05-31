@@ -107,7 +107,6 @@ catkin_package(
 #  CATKIN_DEPENDS rospy
 #  DEPENDS system_lib
 )
-
 ###########
 ## Build ##
 ###########
@@ -158,12 +157,12 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-## install(PROGRAMS
-##   src/serial_conn.py
-##   src/monitor.py
-##   src/nav_controller.py
-##   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-## )
+catkin_install_python(PROGRAMS
+   src/Odroid_arduino_client/serial_conn.py
+   src/Odroid_arduino_client/monitor.py
+   src/Odroid_arduino_client/nav_controller.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
