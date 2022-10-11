@@ -98,8 +98,8 @@ class SerialControl():
 			#string_ = "tv:" + str(round(self.vx,2)) + "," + str(round(self.vy,2)) + "," + str(round(self.wz,2))
 			#print(string_)
 			#print("send")
-			b = bytes(string_, 'utf-8')
-			self.ser.write(b)
+			bstr = bytes(string_, 'utf-8')
+			self.ser.write(bstr)
 		except Exception as e:
 			print(e)
 			myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
