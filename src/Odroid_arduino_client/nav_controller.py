@@ -27,7 +27,7 @@ class NavControl():
 		return self.feedback
 	def sendgoal(self, x = 0, y = 0, alpha = 0):
 		goal = MoveToGoal()
-        	goal.goal.header.frame_id = 'map'
+		goal.goal.header.frame_id = 'map'
 		goal.goal.header.stamp = rospy.Time.now()
 		goal.goal.pose.position.x = x
 		goal.goal.pose.position.y = y
