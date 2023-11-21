@@ -157,6 +157,7 @@ class SerialControl():
 		self.previous_odom_time = time()
 		self.theta -= delta*velocity[2]
 		self.x += delta*(cos(self.theta)*velocity[0] - sin(self.theta)*velocity[1])
+		self.y += delta*(sin(self.theta)*velocity[0] + cos(self.theta)*velocity[1])
 		odom_quat = tf.transformations.quaternion_from_euler(0,0,self.theta)
 		odom = Odometry()
 		odom.header.stamp = rospy.Time.now()
